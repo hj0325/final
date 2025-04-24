@@ -13,7 +13,7 @@
   min-height: 100vh;
   padding: 20px;
   font-family: var(--font-geist-sans);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-color: black;
   overflow: hidden;
   perspective: 2000px;
 }
@@ -167,12 +167,24 @@ a.secondary {
 .scaleContainer {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0;
   transform-style: preserve-3d;
+  margin-top: -15vh;
+}
+
+.scaleContainer::before {
+  content: '';
+  position: absolute;
+  width: 80vmin;
+  height: 80vmin;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .scaleWrapper {
@@ -183,62 +195,329 @@ a.secondary {
   justify-content: center;
   align-items: center;
   transform-style: preserve-3d;
-  transition: transform 0.1s ease-out;
-  will-change: transform;
+  perspective: 1000px;
+  z-index: 1;
 }
 
 .scaleSvg {
   width: 100%;
   height: 100%;
   max-width: 3000px;
-  min-width: 1200px;
+  min-width: 1400px;
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
   transform-style: preserve-3d;
   will-change: transform;
+  z-index: 1;
+  transition: transform 0.1s ease-out;
+  transform-origin: center center;
+  cursor: pointer;
 }
 
 /* 레이어별 3D 효과 */
-.scaleSvg g[id*="layer_"] {
+.scaleSvg .layer {
   transform-style: preserve-3d;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.2s ease-out;
   will-change: transform;
+  opacity: 1;
 }
 
-.scaleSvg g[id*="layer_1"] {
-  transform: translateZ(0px);
+/* 레이어별 z-index 설정 */
+.scaleSvg #layer_1 { transform: translateZ(0px); }
+.scaleSvg #layer_2 { transform: translateZ(10px); }
+.scaleSvg #layer_3 { transform: translateZ(20px); }
+.scaleSvg #layer_4 { transform: translateZ(30px); }
+.scaleSvg #layer_5 { transform: translateZ(40px); }
+.scaleSvg #layer_6 { transform: translateZ(50px); }
+.scaleSvg #layer_7 { transform: translateZ(60px); }
+.scaleSvg #layer_8 { transform: translateZ(70px); }
+.scaleSvg #layer_9 { transform: translateZ(80px); }
+.scaleSvg #layer_10 { transform: translateZ(90px); }
+.scaleSvg #layer_11 { transform: translateZ(100px); }
+
+/* 활성화된 레이어 효과 */
+.scaleSvg .layer.active {
+  transform: translateZ(150px) !important;
+  filter: brightness(1.2);
 }
 
-.scaleSvg g[id*="layer_2"],
-.scaleSvg g[id*="layer_4"] {
-  transform: translateZ(10px);
+/* 마우스 호버 효과 */
+.scaleWrapper:hover .scaleSvg #layer_2,
+.scaleWrapper:hover .scaleSvg #layer_4 {
+  transform: translateZ(120px);
 }
 
-.scaleSvg g[id*="layer_3"] {
-  transform: translateZ(20px);
+.scaleWrapper:hover .scaleSvg #layer_3 {
+  transform: translateZ(130px);
 }
 
-.scaleSvg g[id*="layer_5"],
-.scaleSvg g[id*="layer_6"],
-.scaleSvg g[id*="layer_7"] {
-  transform: translateZ(5px);
+.scaleWrapper:hover .scaleSvg #layer_5,
+.scaleWrapper:hover .scaleSvg #layer_6,
+.scaleWrapper:hover .scaleSvg #layer_7 {
+  transform: translateZ(110px);
 }
 
-.scaleSvg g[id*="layer_8"],
-.scaleSvg g[id*="layer_9"] {
+.scaleWrapper:hover .scaleSvg #layer_8,
+.scaleWrapper:hover .scaleSvg #layer_9 {
+  transform: translateZ(140px);
+}
+
+.scaleWrapper:hover .scaleSvg #layer_10,
+.scaleWrapper:hover .scaleSvg #layer_11 {
+  transform: translateZ(150px);
+}
+
+.layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+  cursor: pointer;
+}
+
+.layer:hover {
   transform: translateZ(15px);
 }
 
-/* 마우스 이동에 따른 3D 효과 */
-.scaleWrapper:hover .scaleSvg g[id*="layer_2"] {
-  transform: translateZ(20px) rotateX(5deg);
+/* 레이어별 z-index 설정 */
+.layer:nth-child(1) { z-index: 1; }
+.layer:nth-child(2) { z-index: 2; }
+.layer:nth-child(3) { z-index: 3; }
+.layer:nth-child(4) { z-index: 4; }
+.layer:nth-child(5) { z-index: 5; }
+.layer:nth-child(6) { z-index: 6; }
+.layer:nth-child(7) { z-index: 7; }
+.layer:nth-child(8) { z-index: 8; }
+.layer:nth-child(9) { z-index: 9; }
+.layer:nth-child(10) { z-index: 10; }
+.layer:nth-child(11) { z-index: 11; }
+
+.buttonContainer {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+  z-index: 100;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 100px;
+  backdrop-filter: blur(5px);
 }
 
-.scaleWrapper:hover .scaleSvg g[id*="layer_4"] {
-  transform: translateZ(20px) rotateX(-5deg);
+.emojiButton {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 100px;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  color: rgba(255, 255, 255, 1);
+  border: none;
+  overflow: hidden;
+  filter: saturate(0.5);
 }
 
-.scaleWrapper:hover .scaleSvg g[id*="layer_5"],
-.scaleWrapper:hover .scaleSvg g[id*="layer_6"],
-.scaleWrapper:hover .scaleSvg g[id*="layer_7"] {
-  transform: translateZ(15px) rotateY(5deg);
+.emojiButton:hover {
+  transform: scale(1.1);
+  filter: saturate(0.7);
+}
+
+.emojiButton:active {
+  transform: scale(0.95);
+  filter: saturate(0.8);
+}
+
+.emojiButton.active {
+  border: none;
+  filter: saturate(0.9) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.emojiButton.active::before {
+  display: none;
+}
+
+@keyframes glow {
+  from {
+  }
+  to {
+  }
+}
+
+@keyframes borderGlow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.leftSlider,
+.rightSlider {
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.leftSlider {
+  left: 20px;
+}
+
+.rightSlider {
+  right: 20px;
+}
+
+.sliderContent {
+  position: relative;
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.sliderTrack {
+  position: absolute;
+  width: 12px;
+  height: calc(100% - 40px);
+  background: rgb(135, 206, 235);
+  border-radius: 6px;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+  z-index: 1;
+}
+
+.sliderHandle {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: rgb(255, 0, 0);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  z-index: 2;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.sliderHandle:hover {
+  background: rgb(255, 0, 0);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+  transform: translateX(-50%) scale(1.1);
+}
+
+.sliderHandle:active {
+  background: rgb(255, 0, 0);
+  box-shadow: 0 0 25px rgba(255, 0, 0, 0.9);
+  transform: translateX(-50%) scale(0.95);
+}
+
+.gameModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 300px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 4px solid rgb(135, 206, 235);
+  border-radius: 20px;
+  padding: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(135, 206, 235, 0.5);
+  animation: modalAppear 0.3s ease-out;
+}
+
+.gameModal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 16px;
+  background: linear-gradient(45deg, transparent 50%, rgba(135, 206, 235, 0.1) 50%);
+  background-size: 4px 4px;
+  pointer-events: none;
+}
+
+.gameModalTitle {
+  color: rgb(135, 206, 235);
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+}
+
+.gameModalContent {
+  color: white;
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.gameModalButton {
+  background: rgb(135, 206, 235);
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.gameModalButton:hover {
+  background: rgb(255, 0, 0);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1999;
+  backdrop-filter: blur(5px);
 }
