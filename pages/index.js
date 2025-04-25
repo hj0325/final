@@ -2,6 +2,8 @@ import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import { useState, useEffect, useRef } from 'react'
 
+const emojis = ['😊', '😮', '😐', '😢', '😡'];
+
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [scaleRotation, setScaleRotation] = useState({ x: 0, y: 0 })
@@ -19,32 +21,37 @@ export default function Home() {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      const { clientX, clientY } = e;
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+      if (!scaleRef.current) return;
       
-      // Scale rotation
-      const rotationX = 0;
-      const rotationY = ((clientX - centerX) / centerX) * 20;
-      setScaleRotation({ x: rotationX, y: rotationY });
+      const rect = scaleRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
       
-      setMousePosition({ x: clientX, y: clientY });
-
-      // 활성화된 레이어에 대한 3D 효과 조정
-      if (scaleRef.current && activeLayer) {
-        const layer = scaleRef.current.querySelector(`#layer_${activeLayer}`);
-        if (layer) {
-          const depth = activeLayer * 8;
-          const translateX = (rotationY * depth) / 100;
-          const translateY = 0;
-          layer.style.transform = `translateZ(${depth}px) translateX(${translateX}px) translateY(${translateY}px)`;
-        }
-      }
+      // Calculate distance from center
+      const distanceFromCenter = Math.abs(x - centerX);
+      const maxDistance = rect.width / 2;
+      const opacity = Math.min(distanceFromCenter / (maxDistance / 2), 1);
+      
+      // Update CSS variable
+      scaleRef.current.style.setProperty('--light-line-opacity', opacity);
+      scaleRef.current.style.setProperty('--light-x', `${(x / rect.width) * 100}%`);
+      scaleRef.current.style.setProperty('--light-y', `${(y / rect.height) * 100}%`);
+      
+      setMousePosition({ x, y });
+      
+      // Calculate rotation based on mouse position (only horizontal)
+      const rotationY = ((centerX - x) / centerX) * 25;
+      setScaleRotation({ x: 0, y: rotationY });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [activeLayer]);
+    const scaleContainer = scaleRef.current;
+    if (scaleContainer) {
+      scaleContainer.addEventListener('mousemove', handleMouseMove);
+      return () => scaleContainer.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, []);
 
   const handleLayerClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -54,14 +61,16 @@ export default function Home() {
     setActiveLayer(activeLayer === layerId ? null : layerId);
   };
 
-  const handleEmojiClick = (index) => {
-    setActiveEmoji(activeEmoji === index ? null : index);
-    setModalEmoji(index);
+  const handleEmojiClick = (emoji) => {
+    setActiveEmoji(emoji);
+    setModalEmoji(emoji);
     setShowModal(true);
   };
 
-  const closeModal = () => {
+  const handleCloseModal = (e) => {
+    e.stopPropagation();
     setShowModal(false);
+    setActiveEmoji(null);
     setModalEmoji(null);
   };
 
@@ -155,26 +164,17 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.buttonContainer}>
-          <button 
-            className={`${styles.emojiButton} ${activeEmoji === 0 ? styles.active : ''}`}
-            onClick={() => handleEmojiClick(0)}
-          >😊</button>
-          <button 
-            className={`${styles.emojiButton} ${activeEmoji === 1 ? styles.active : ''}`}
-            onClick={() => handleEmojiClick(1)}
-          >😮</button>
-          <button 
-            className={`${styles.emojiButton} ${activeEmoji === 2 ? styles.active : ''}`}
-            onClick={() => handleEmojiClick(2)}
-          >😕</button>
-          <button 
-            className={`${styles.emojiButton} ${activeEmoji === 3 ? styles.active : ''}`}
-            onClick={() => handleEmojiClick(3)}
-          >😢</button>
-          <button 
-            className={`${styles.emojiButton} ${activeEmoji === 4 ? styles.active : ''}`}
-            onClick={() => handleEmojiClick(4)}
-          >😡</button>
+          {emojis.map((emoji) => (
+            <button
+              key={emoji}
+              className={`${styles.emojiButton} ${
+                activeEmoji === emoji ? styles.active : ''
+              }`}
+              onClick={() => handleEmojiClick(emoji)}
+            >
+              {emoji}
+            </button>
+          ))}
         </div>
       </main>
       <div className={styles.rightSlider} ref={rightSliderRef}>
@@ -188,22 +188,21 @@ export default function Home() {
       </div>
 
       {showModal && (
-        <>
-          <div className={styles.modalOverlay} onClick={closeModal} />
-          <div className={styles.gameModal}>
-            <h2 className={styles.gameModalTitle}>너의 감정을 찾았어!</h2>
-            <div className={styles.gameModalContent}>
-              {modalEmoji === 0 && "기분이 좋구나! 😊"}
-              {modalEmoji === 1 && "깜짝 놀랐구나? 😮"}
-              {modalEmoji === 2 && "무슨 일이야? 😕"}
-              {modalEmoji === 3 && "슬퍼 보여... 😢"}
-              {modalEmoji === 4 && "화가 났구나! 😡"}
-            </div>
-            <button className={styles.gameModalButton} onClick={closeModal}>
-              닫기
+        <div className={styles.gameModal}>
+          <div className={styles.gameModalContent}>
+            <h2 className={styles.gameModalTitle}>오늘은 어떤 기분이니?</h2>
+            <p>
+              {modalEmoji === '😊' && "기분이 좋구나! 😊"}
+              {modalEmoji === '😮' && "깜짝 놀랐구나? 😮"}
+              {modalEmoji === '😐' && "무슨 일이야? 😕"}
+              {modalEmoji === '😢' && "슬퍼 보여... 😢"}
+              {modalEmoji === '😡' && "화가 났구나! 😡"}
+            </p>
+            <button className={styles.gameModalButton} onClick={handleCloseModal}>
+              선택
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
