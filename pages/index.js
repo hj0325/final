@@ -10,9 +10,9 @@ export default function Home() {
   const [activeLayer, setActiveLayer] = useState(null)
   const [leftSliderValue, setLeftSliderValue] = useState(0.5)
   const [rightSliderValue, setRightSliderValue] = useState(0.5)
-  const [activeEmoji, setActiveEmoji] = useState(null)
+  const [selectedEmoji, setSelectedEmoji] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [modalEmoji, setModalEmoji] = useState(null)
+  const [hoveredEmoji, setHoveredEmoji] = useState(null)
   const scaleRef = useRef(null)
   const leftSliderRef = useRef(null)
   const rightSliderRef = useRef(null)
@@ -60,70 +60,64 @@ export default function Home() {
   };
 
   const handleEmojiClick = (emoji) => {
-    setActiveEmoji(emoji);
-    setModalEmoji(emoji);
+    setSelectedEmoji(emoji);
     setShowModal(true);
   };
 
   const handleCloseModal = (e) => {
     e.stopPropagation();
     setShowModal(false);
-    setActiveEmoji(null);
-    setModalEmoji(null);
+    setSelectedEmoji(null);
+  };
+
+  const handleEmojiHover = (emoji) => {
+    setHoveredEmoji(emoji);
+  };
+
+  const handleEmojiLeave = () => {
+    setHoveredEmoji(null);
+  };
+
+  const handleSliderMouseDown = (e, isLeft) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setActiveSlider(isLeft ? 'left' : 'right');
+  };
+
+  const handleSliderMouseMove = (e) => {
+    if (!isDragging) return;
+
+    const slider = activeSlider === 'left' ? leftSliderRef.current : rightSliderRef.current;
+    if (!slider) return;
+
+    const rect = slider.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+    const value = Math.max(0, Math.min(1, 1 - y / height));
+
+    if (activeSlider === 'left') {
+      setLeftSliderValue(value);
+    } else {
+      setRightSliderValue(value);
+    }
+  };
+
+  const handleSliderMouseUp = () => {
+    setIsDragging(false);
+    setActiveSlider(null);
   };
 
   useEffect(() => {
-    const handleMouseDown = (e, isLeft) => {
-      e.preventDefault();
-      const sliderRef = isLeft ? leftSliderRef : rightSliderRef;
-      const setSliderValue = isLeft ? setLeftSliderValue : setRightSliderValue;
-      const slider = sliderRef.current;
-      const track = slider.querySelector('.sliderTrack');
-      const handle = slider.querySelector('.sliderHandle');
-
-      const startY = e.clientY;
-      const startTop = handle.offsetTop;
-
-      const handleMouseMove = (e) => {
-        const deltaY = e.clientY - startY;
-        const trackHeight = track.offsetHeight;
-        const handleHeight = handle.offsetHeight;
-        
-        let newTop = startTop + deltaY;
-        newTop = Math.max(0, Math.min(newTop, trackHeight - handleHeight));
-        
-        const value = newTop / (trackHeight - handleHeight);
-        setSliderValue(1 - value);
-        
-        handle.style.top = `${newTop}px`;
-      };
-
-      const handleMouseUp = () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    };
-
-    const setupSlider = (sliderRef, isLeft) => {
-      const handle = sliderRef.current?.querySelector('.sliderHandle');
-      if (handle) {
-        const handleMouseDown = (e) => handleMouseDown(e, isLeft);
-        handle.addEventListener('mousedown', handleMouseDown);
-        return () => handle.removeEventListener('mousedown', handleMouseDown);
-      }
-    };
-
-    const cleanupLeft = setupSlider(leftSliderRef, true);
-    const cleanupRight = setupSlider(rightSliderRef, false);
+    if (isDragging) {
+      window.addEventListener('mousemove', handleSliderMouseMove);
+      window.addEventListener('mouseup', handleSliderMouseUp);
+    }
 
     return () => {
-      cleanupLeft?.();
-      cleanupRight?.();
+      window.removeEventListener('mousemove', handleSliderMouseMove);
+      window.removeEventListener('mouseup', handleSliderMouseUp);
     };
-  }, []);
+  }, [isDragging, activeSlider]);
 
   return (
     <div className={styles.page}>
@@ -139,6 +133,7 @@ export default function Home() {
           <div 
             className={styles.sliderHandle}
             style={{ top: `${(1 - leftSliderValue) * 100}%` }}
+            onMouseDown={(e) => handleSliderMouseDown(e, true)}
           />
         </div>
       </div>
@@ -162,11 +157,11 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.buttonContainer}>
-          {emojis.map((emoji) => (
+          {emojis.map((emoji, index) => (
             <button
-              key={emoji}
+              key={index}
               className={`${styles.emojiButton} ${
-                activeEmoji === emoji ? styles.active : ''
+                selectedEmoji === emoji ? styles.active : ''
               }`}
               onClick={() => handleEmojiClick(emoji)}
             >
@@ -181,24 +176,27 @@ export default function Home() {
           <div 
             className={styles.sliderHandle}
             style={{ top: `${(1 - rightSliderValue) * 100}%` }}
+            onMouseDown={(e) => handleSliderMouseDown(e, false)}
           />
         </div>
       </div>
 
       {showModal && (
-        <div className={styles.gameModal}>
-          <div className={styles.gameModalContent}>
-            <h2 className={styles.gameModalTitle}>오늘은 어떤 기분이니?</h2>
-            <p>
-              {modalEmoji === '😊' && "기분이 좋구나! 😊"}
-              {modalEmoji === '😮' && "깜짝 놀랐구나? 😮"}
-              {modalEmoji === '😐' && "무슨 일이야? 😕"}
-              {modalEmoji === '😢' && "슬퍼 보여... 😢"}
-              {modalEmoji === '😡' && "화가 났구나! 😡"}
-            </p>
-            <button className={styles.gameModalButton} onClick={handleCloseModal}>
-              선택
-            </button>
+        <div className={styles.modalOverlay} onClick={handleCloseModal}>
+          <div className={styles.gameModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.gameModalContent}>
+              <h2 className={styles.gameModalTitle}>오늘은 어떤 기분이니?</h2>
+              <p>
+                {selectedEmoji === '😊' && "기분이 좋구나! 😊"}
+                {selectedEmoji === '😮' && "깜짝 놀랐구나? 😮"}
+                {selectedEmoji === '😐' && "무슨 일이야? 😕"}
+                {selectedEmoji === '😢' && "슬퍼 보여... 😢"}
+                {selectedEmoji === '😡' && "화가 났구나! 😡"}
+              </p>
+              <button className={styles.gameModalButton} onClick={handleCloseModal}>
+                선택
+              </button>
+            </div>
           </div>
         </div>
       )}

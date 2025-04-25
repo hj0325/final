@@ -133,9 +133,10 @@
   transform: translateX(-50%);
   display: flex;
   gap: 40px;
-  z-index: 200;
+  z-index: 2000;
   padding: 20px;
   pointer-events: auto;
+  isolation: isolate;
 }
 
 .emojiButton {
@@ -157,7 +158,8 @@
   overflow: hidden;
   filter: saturate(0.5);
   position: relative;
-  z-index: 200;
+  z-index: 2000;
+  pointer-events: auto;
 }
 
 .emojiButton:hover {
@@ -253,17 +255,18 @@
   transform: translate(-50%, -50%);
   width: 400px;
   height: 300px;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   border: 4px solid rgb(135, 206, 235);
   border-radius: 20px;
   padding: 20px;
-  z-index: 2000;
+  z-index: 3000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 30px rgba(135, 206, 235, 0.5);
   animation: modalAppear 0.3s ease-out;
+  pointer-events: auto;
 }
 
 .gameModal::before {
@@ -330,8 +333,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 1999;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2500;
   backdrop-filter: blur(5px);
 }
 
