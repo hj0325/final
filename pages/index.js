@@ -34,15 +34,13 @@ export default function Home() {
       const maxDistance = rect.width / 2;
       const opacity = Math.min(distanceFromCenter / (maxDistance / 2), 1);
       
-      // Update CSS variable
+      // Update CSS variable for opacity only
       scaleRef.current.style.setProperty('--light-line-opacity', opacity);
-      scaleRef.current.style.setProperty('--light-x', `${(x / rect.width) * 100}%`);
-      scaleRef.current.style.setProperty('--light-y', `${(y / rect.height) * 100}%`);
       
       setMousePosition({ x, y });
       
       // Calculate rotation based on mouse position (only horizontal)
-      const rotationY = ((centerX - x) / centerX) * 25;
+      const rotationY = ((centerX - x) / centerX) * 35;
       setScaleRotation({ x: 0, y: rotationY });
     };
 

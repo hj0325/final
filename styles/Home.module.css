@@ -51,27 +51,28 @@
   padding: 0;
   transform-style: preserve-3d;
   margin-top: -100px;
-  --light-x: 50%;
-  --light-y: 50%;
   --light-line-opacity: 0;
 }
 
 .scaleContainer::before {
   content: '';
   position: absolute;
-  width: 60vmin;
-  height: 60vmin;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 70%);
+  width: 40vmin;
+  height: 40vmin;
+  background: radial-gradient(circle at center, 
+    rgba(255, 255, 255, 0.4) 0%, 
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 80%
+  );
   border-radius: 50%;
   z-index: 0;
   pointer-events: none;
-  filter: blur(15px);
-  transform: translate(-50%, -50%) translateZ(-100px);
-  transition: all 0.1s ease;
+  filter: blur(20px);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
-  transform-origin: center center;
-  left: var(--light-x);
-  top: var(--light-y);
 }
 
 .scaleContainer:hover::before {
@@ -81,21 +82,21 @@
 .scaleContainer::after {
   content: '';
   position: absolute;
-  width: 12px;
+  width: 10px;
   height: 60%;
   background: linear-gradient(to bottom, 
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   z-index: 2;
   pointer-events: none;
   filter: blur(2px);
-  transform: translateX(-50%) translateZ(1px);
   left: 50%;
-  top: 20%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   opacity: var(--light-line-opacity);
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .scaleWrapper {
@@ -106,8 +107,9 @@
   justify-content: center;
   align-items: center;
   transform-style: preserve-3d;
-  perspective: 1000px;
+  perspective: 2000px;
   z-index: 1;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.3));
 }
 
 .scaleSvg {
@@ -115,11 +117,11 @@
   height: 100%;
   max-width: 1200px;
   min-width: 1000px;
-  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
   transform-style: preserve-3d;
   will-change: transform;
   z-index: 1;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: center center;
   cursor: pointer;
 }
@@ -131,7 +133,7 @@
   transform: translateX(-50%);
   display: flex;
   gap: 40px;
-  z-index: 100;
+  z-index: 200;
   padding: 20px;
   pointer-events: auto;
 }
@@ -155,7 +157,7 @@
   overflow: hidden;
   filter: saturate(0.5);
   position: relative;
-  z-index: 100;
+  z-index: 200;
 }
 
 .emojiButton:hover {
